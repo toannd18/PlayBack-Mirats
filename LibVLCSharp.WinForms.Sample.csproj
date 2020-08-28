@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <Title>LibVLCSharp.WinForms.Sample</Title>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net4.7.2;netcoreapp3.0</TargetFrameworks>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>LibVLCSharp.WinForms.Sample</RootNamespace>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <StartupObject>LibVLCSharp.WinForms.Sample.Program</StartupObject>
+    <ApplicationIcon>Janosch500-Tropical-Waters-Folders-Music.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\net4.7.2\rewind-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\net4.7.2\Music-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\net4.7.2\forward-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp" Version="3.4.6" />
+    <PackageReference Include="LibVLCSharp.WinForms" Version="3.4.6" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.11" />
+    <PackageReference Include="Xabe.FFmpeg" Version="4.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Core">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Data">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Drawing">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.IO.Compression.FileSystem">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Numerics">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Runtime.Serialization">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Windows.Forms">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Xml">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Update="System.Xml.Linq">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
