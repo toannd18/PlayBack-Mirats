@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Xabe.FFmpeg;
 
@@ -14,7 +15,6 @@ namespace LibVLCSharp.WinForms.Sample
         public AudioService()
         {
             _audioManager = new AudioManager();
-            
         }
 
         public Task<IConversionResult> SetFileAudio(List<ModelAudio> listAudio)
@@ -24,20 +24,23 @@ namespace LibVLCSharp.WinForms.Sample
                 string arguments = "-y ";
                 string arguments_1 = "-filter_complex \"";
                 string arguments_2 = null;
+                listAudio = listAudio.Where(m => m.Status).ToList();
                 var lengthList = listAudio.Count;
                 string outputPath = Path.Combine(Environment.CurrentDirectory, "video_audio.mp3");
                 for (var i = 0; i < lengthList; i++)
                 {
-                    arguments = $"{arguments}-i \"{listAudio[i].PathFile}\" ";
-                    if (listAudio[i].StartTime < 0)
-                    {
-                        var timeStart = -listAudio[i].StartTime;
-                        arguments_1 = $"{arguments_1}[{i}]atrim=start={timeStart}[a{i}];";
+                
+                        arguments = $"{arguments}-i \"{listAudio[i].PathFile}\" ";
+                        if (listAudio[i].StartTime < 0)
+                        {
+                            var timeStart = -listAudio[i].StartTime;
+                            arguments_1 = $"{arguments_1}[{i}]atrim=start={timeStart}[a{i}];";
+                            arguments_2 = $"{arguments_2}[a{i}]";
+                            continue;
+                        }
+                        arguments_1 = $"{arguments_1}[{i}]adelay={listAudio[i].StartTime}|{listAudio[i].StartTime}[a{i}];";
                         arguments_2 = $"{arguments_2}[a{i}]";
-                        continue;
-                    }
-                    arguments_1 = $"{arguments_1}[{i}]adelay={listAudio[i].StartTime}|{listAudio[i].StartTime}[a{i}];";
-                    arguments_2 = $"{arguments_2}[a{i}]";
+                    
                 }
                 arguments = $"{arguments}{arguments_1}{arguments_2}amix=inputs={lengthList}[a]\" -map [a] \"{outputPath}\"";
                 var conversionResult = FFmpeg.Conversions.New().Start(arguments);
@@ -51,24 +54,35 @@ namespace LibVLCSharp.WinForms.Sample
             //System.Diagnostics.Debug.WriteLine(arguments);
         }
 
-        public async Task ExecuteAsyncAudio(ModelAudio model)
+        public async Task<string> ExecuteAsyncAudio(List<ModelAudio> listAudio)
         {
+            _audioManager.TemporarySaveFolder("Audio");
+            string outputPath = Path.Combine(Environment.CurrentDirectory, "Audio", $"{DateTime.Now.Ticks}.mp3");
             try
             {
                 await Task.Run(() =>
                 {
-                    string inputPath = model.PathFile;
-                    string outputConvertedPath = _audioManager.TemporarySaveFolder("Audio");
-                    outputConvertedPath = Path.Combine(outputConvertedPath, Path.GetFileName(inputPath));
-                    string arguments;
-                    if (model.StartTime < 0)
+                    string arguments = "-y ";
+                    string arguments_1 = "-filter_complex \"";
+                    string arguments_2 = null;
+                    listAudio = listAudio.Where(m => m.Status).ToList();
+                    int lengthList = listAudio.Count;
+
+                    for (int i = 0; i < lengthList; i++)
                     {
-                        arguments = $"-y -i \"{inputPath}\" -filter_complex \"atrim=start={model.StartTime} [a0]\" -map [a0] \"{outputConvertedPath}\"";
+                        arguments = $"{arguments}-i \"{listAudio[i].PathFile}\" ";
+                        if (listAudio[i].StartTime < 0)
+                        {
+                            var timeStart = -listAudio[i].StartTime;
+                            arguments_1 = $"{arguments_1}[{i}]atrim=start={timeStart}[a{i}];";
+                            arguments_2 = $"{arguments_2}[a{i}]";
+                            continue;
+                        }
+                        arguments_1 = $"{arguments_1}[{i}]adelay={listAudio[i].StartTime}|{listAudio[i].StartTime}[a{i}];";
+                        arguments_2 = $"{arguments_2}[a{i}]";
                     }
-                    else
-                    {
-                        arguments = $"-y -i \"{inputPath}\" -filter_complex \"adelay={model.StartTime}|{model.StartTime} [a0]\" -map [a0] \"{outputConvertedPath}\"";
-                    }
+
+                    arguments = $"{arguments}{arguments_1}{arguments_2}amix=inputs={lengthList}[a]\" -map [a] \"{outputPath}\"";
                     Debug.WriteLine(arguments);
                     var startInfo = new ProcessStartInfo
                     {
@@ -89,8 +103,7 @@ namespace LibVLCSharp.WinForms.Sample
             {
                 throw new Exception(e.Message);
             }
+            return outputPath;
         }
-
-
     }
 }

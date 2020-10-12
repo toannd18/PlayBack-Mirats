@@ -10,6 +10,7 @@ namespace LibVLCSharp.WinForms.Sample
     {
         public string PathFile { get; set; }
         public long StartTime { get; set; }
+        public bool Status { get; set; } = true;
        
     }
 }

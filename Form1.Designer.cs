@@ -119,6 +119,7 @@ namespace LibVLCSharp.WinForms.Sample
             // 
             // cklistbox
             // 
+            this.cklistbox.CheckOnClick = true;
             this.cklistbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cklistbox.FormattingEnabled = true;
             this.cklistbox.Location = new System.Drawing.Point(3, 16);
@@ -126,6 +127,7 @@ namespace LibVLCSharp.WinForms.Sample
             this.cklistbox.Size = new System.Drawing.Size(221, 277);
             this.cklistbox.TabIndex = 1;
             this.cklistbox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cklistbox_ItemCheck);
+      
             // 
             // groupBox1
             // 

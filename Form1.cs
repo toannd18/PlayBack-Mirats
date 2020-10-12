@@ -16,13 +16,13 @@ namespace LibVLCSharp.WinForms.Sample
         public MediaPlayer _mp;
         public Media media;
         public string _fileName;
-        public List<ModelMediaPlay> listMedia;
+
         public long _setTime;
         public DateTime timePlayer;
         public AudioService audioService;
         public ToolTip toolTip;
         private readonly AudioManager _audioManager;
-        private readonly List<PlayMedia> _lsPlays;
+        private List<ModelAudio> listAudio;
         private float rate;
 
         public Form1()
@@ -49,24 +49,19 @@ namespace LibVLCSharp.WinForms.Sample
             rate = (float)cbRate.SelectedIndex + 1;
             audioService = new AudioService();
             _audioManager = new AudioManager();
-            _lsPlays = new List<PlayMedia>();
+            listAudio = new List<ModelAudio>();
         }
 
         private void PausableChanged(object sender, EventArgs e)
         {
-            if (_mp.CanPause)
-            {
-                foreach (var i in _lsPlays)
-                {
-                    i.Player.Pause();
-                }
-            }
         }
 
         private void OnPositionChanged(object sender, MediaPlayerPositionChangedEventArgs e)
         {
-            trBar.InvokeIfRequired(l => l.Value = (int)_mp.Time / 1000);
-
+            if (_mp.IsPlaying)
+            {
+                trBar.InvokeIfRequired(l => l.Value = (int)_mp.Time / 1000);
+            }
         }
 
         private void OnBackward(object sender, EventArgs e)
@@ -81,19 +76,16 @@ namespace LibVLCSharp.WinForms.Sample
 
         private void OnStoped(object sender, EventArgs e)
         {
-            btn_play.InvokeIfRequired(l => l.Text = "Play");
+            //btn_play.InvokeIfRequired(l => l.Text = "Play");
             //var stopList = listMedia.FindAll(x => x.mediaPlayer.IsPlaying).ToList();
             //Parallel.ForEach(_lsPlays, (item) =>
             // {
             //     item.Player.Stop();
             // });
-            trBar.InvokeIfRequired(l => l.Value = 0);
-            trBar.InvokeIfRequired(l => l.Enabled = false);
         }
 
         private void OnLengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
         {
-          
             trBar.InvokeIfRequired(l => l.Maximum = (int)e.Length / 1000);
             trBar.InvokeIfRequired(l => l.Enabled = true);
             btn_play.InvokeIfRequired(l => l.Text = "Pause");
@@ -101,18 +93,17 @@ namespace LibVLCSharp.WinForms.Sample
 
         private void Time_Changed(object sender, MediaPlayerTimeChangedEventArgs e)
         {
-            var currentime = timePlayer.Add(TimeSpan.FromMilliseconds(e.Time)).ToString(@"hh\:mm\:ss");
-          
+            var currentime = timePlayer.Add(TimeSpan.FromMilliseconds(e.Time)).ToString(@"HH\:mm\:ss");
+
             lbl_time.InvokeIfRequired(l => l.Text = currentime);
 
             //Parallel.ForEach(_lsPlays, (item) =>
             //{
             //    if (e.Time - item.Player.Time > 2000 || e.Time - item.Player.Time > -2000)
             //    {
-                  
             //        item.Player.Time = e.Time;
             //        item.Player.Play();
-                    
+
             //    }
             //});
 
@@ -182,24 +173,28 @@ namespace LibVLCSharp.WinForms.Sample
             });
         }
 
-        private void btn_play_Click(object sender, EventArgs e)
+        private async void btn_play_Click(object sender, EventArgs e)
         {
             if (_mp.Media is null) return;
             if (_mp.IsPlaying)
             {
                 _mp.Pause();
                 btn_play.InvokeIfRequired(l => l.Text = "Play");
-                foreach (var i in _lsPlays)
-                {
-                    i.Player.Pause();
-                }
+
                 return;
             }
             if (_mp.CanPause)
             {
+                btn_play.InvokeIfRequired(l => l.Text = "Pause");
                 _mp.Play();
 
                 return;
+            }
+            if (listAudio.Count > 0)
+            {
+                await audioService.SetFileAudio(listAudio);
+                string outpath = Path.Combine(Environment.CurrentDirectory, "video_audio.mp3");
+                _mp.AddSlave(MediaSlaveType.Audio, $"file:///" + outpath, false);
             }
 
             //for(int i=0;i< cklistbox.CheckedItems.Count; i++)
@@ -209,31 +204,25 @@ namespace LibVLCSharp.WinForms.Sample
             //    Debug.WriteLine(outpath);
             //    media.AddSlave(MediaSlaveType.Audio,(uint)i , $"file:///" + outpath);
             //}
-            string outpath = Path.Combine(Environment.CurrentDirectory, "video_audio.mp3");
-            _mp.AddSlave(MediaSlaveType.Audio, $"file:///" + outpath, false);
-            Task.Run(() =>
-            {
-                //PlayMedia(_lsPlays);
-               
-                _mp.SetRate(rate);
-                Task.Delay(2000).Wait();
-                _mp.Play();
-            });
+
+            _mp.Volume = 90;
+
+            //PlayMedia(_lsPlays);
+
+            _mp.SetRate(rate);
+            Task.Delay(500).Wait();
+            _mp.Play();
         }
 
         private void btn_bkn_Click(object sender, EventArgs e)
         {
             if (!_mp.IsPlaying) return;
-            // btn_bkn.InvokeIfRequired(l => l.Enabled = false);
+
             _mp.Pause();
             _mp.Time -= _setTime;
-            //foreach (var i in _lsPlays)
-            //{
-            //    i.Player.Stop();
-            //}
+
             Task.Delay(200).Wait();
             _mp.Play();
-            //  btn_bkn.InvokeIfRequired(l => l.Enabled = true);
         }
 
         private void btn_frn_Click(object sender, EventArgs e)
@@ -242,10 +231,7 @@ namespace LibVLCSharp.WinForms.Sample
             // btn_frn.InvokeIfRequired(l => l.Enabled = false);
             _mp.Pause();
             _mp.Time += _setTime;
-            foreach (var i in _lsPlays)
-            {
-                i.Player.Stop();
-            }
+
             Task.Delay(200).Wait();
             _mp.Play();
             // btn_frn.InvokeIfRequired(l => l.Enabled = true);
@@ -306,12 +292,12 @@ namespace LibVLCSharp.WinForms.Sample
                 var lengthFile = _mp.Media.Duration;
                 var endPlayer = timePlayer.AddMilliseconds((double)lengthFile);
                 lbl_End.InvokeIfRequired(l => l.Text = $"Kết thúc: {endPlayer.ToString("dd-MM-yyyy HH:mm:ss")}");
-                lbl_length.InvokeIfRequired(l => l.Text = endPlayer.ToString(@"hh\:mm\:ss"));
+                lbl_length.InvokeIfRequired(l => l.Text = endPlayer.ToString(@"HH\:mm\:ss"));
                 btn_OpAudio.InvokeIfRequired(l => l.Enabled = true);
             }
         }
 
-        private async void btn_OpAudio_Click(object sender, EventArgs e)
+        private void btn_OpAudio_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog
             {
@@ -336,12 +322,12 @@ namespace LibVLCSharp.WinForms.Sample
                 //    mediaPlayer = new MediaPlayer(_libVLC) { Media = new Media(_libVLC, x, FromType.FromPath) },
                 //    startTime = GetStartTime(Path.GetFileNameWithoutExtension(x), timePlayer)
                 //}).ToList();
-                List<ModelAudio> listAudio = openFile.FileNames.Select(x => new ModelAudio
+                listAudio = openFile.FileNames.Select(x => new ModelAudio
                 {
                     PathFile = x,
-                    StartTime = GetStartTime(Path.GetFileNameWithoutExtension(x), timePlayer)
+                    StartTime = GetStartTime(Path.GetFileNameWithoutExtension(x), timePlayer),
                 }).ToList();
-                await  audioService.SetFileAudio(listAudio);
+
                 _audioManager.DeleteTemporaryFolder("Audio");
                 List<string> listError = new List<string>();
                 List<string> cbListbox = new List<string>();
@@ -350,7 +336,7 @@ namespace LibVLCSharp.WinForms.Sample
                     string filePath = Path.GetFileNameWithoutExtension(item.PathFile);
                     if (item.StartTime != timePlayer.Ticks)
                     {
-                      //  await audioService.ExecuteAsyncAudio(item);
+                        //  await audioService.ExecuteAsyncAudio(item);
                         cbListbox.Add(filePath);
                     }
                     else
@@ -359,24 +345,12 @@ namespace LibVLCSharp.WinForms.Sample
                     }
                 }
 
-                cklistbox.BeginUpdate();
                 cklistbox.Items.Clear();
-                cklistbox.Items.AddRange(cbListbox.ToArray());
-                cklistbox.EndUpdate();
-                //for (int i = 0; i < cklistbox.Items.Count; i++)
-                //{
-                //    cklistbox.SetItemChecked(i, true);
-                //    var playMedia = new PlayMedia();
+                foreach (var i in cbListbox)
+                {
+                    cklistbox.Items.Add(i, true);
+                }
 
-                //    string outpath = Path.Combine(Environment.CurrentDirectory, "Audio");
-                //    outpath = Path.Combine(outpath, $"{cklistbox.Items[i]}.mp3");
-                //    var _media = new Media(_libVLC, outpath, FromType.FromPath);
-
-                //    playMedia.Status = cklistbox.GetItemChecked(i);
-                //    playMedia.Player = new MediaPlayer(_libVLC) { Media = new Media(_libVLC, outpath, FromType.FromPath) };
-                //    Task.WaitAll(playMedia.Player.Media.Parse());
-                //    _lsPlays.Add(playMedia);
-                //}
                 if (listError.Count() > 0)
                 {
                     MessageBox.Show(string.Join("\n", listError), "Danh sách lỗi", MessageBoxButtons.OK);
@@ -389,6 +363,9 @@ namespace LibVLCSharp.WinForms.Sample
             if (_mp.IsPlaying)
             {
                 _mp.Stop();
+                btn_play.InvokeIfRequired(l => l.Text = "Play");
+                trBar.InvokeIfRequired(l => l.Value = 0);
+                trBar.InvokeIfRequired(l => l.Enabled = false);
             }
             //foreach (var i in _lsPlays)
             //{
@@ -398,7 +375,7 @@ namespace LibVLCSharp.WinForms.Sample
 
         private void trBar_Scroll(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(trBar, timePlayer.AddSeconds((double)trBar.Value).ToString(@"hh\:mm\:ss"));
+            toolTip.SetToolTip(trBar, timePlayer.AddSeconds((double)trBar.Value).ToString(@"HH\:mm\:ss"));
             var setTime = (long)(trBar.Value * 1000);
             _mp.Pause();
             //foreach (var i in _lsPlays)
@@ -455,17 +432,37 @@ namespace LibVLCSharp.WinForms.Sample
 
         #endregion code cu
 
-        private void cklistbox_ItemCheck(object sender, ItemCheckEventArgs e)
+        private async void cklistbox_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            //for (int i = 0; i < _lsPlays.Count(); i++)
-            //{
-            //    if (e.Index == i)
-            //    {
-            //        Debug.WriteLine(e.NewValue.Equals(CheckState.Checked));
-            //        _lsPlays[i].Player.Mute = !e.NewValue.Equals(CheckState.Checked);
-            //        return;
-            //    }
-            //}
+            if (_mp.IsPlaying)
+            {
+                cklistbox.Enabled = false;
+
+                listAudio.ForEach(m =>
+                {
+                    if (Path.GetFileNameWithoutExtension(m.PathFile) == cklistbox.Items[e.Index].ToString())
+                    {
+                        m.Status = e.NewValue.Equals(CheckState.Checked);
+                    }
+                });
+
+                string outpath = await audioService.ExecuteAsyncAudio(listAudio);
+                Debug.WriteLine(outpath);
+                var time = _mp.Time;
+                _mp.Media.ClearSlaves();
+                _mp.Stop();
+
+                _mp.AddSlave(MediaSlaveType.Audio, $"file:///" + outpath, true); ;
+
+                _mp.Play();
+                _mp.Time = time;
+                cklistbox.Enabled = true;
+                //foreach (var i in _mp.Media.Slaves)
+                //{
+                //    Debug.WriteLine(i.Uri.ToString());
+                //}
+                //_mp.Time = time;
+            }
         }
 
         private void cbRate_SelectedIndexChanged(object sender, EventArgs e)
@@ -485,16 +482,6 @@ namespace LibVLCSharp.WinForms.Sample
                     _mp.Play();
                 });
             }
-        }
-
-        private void Hook(MediaPlayer media)
-        {
-            media.LengthChanged += Media_LengthChanged;
-        }
-
-        private void Media_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 }
