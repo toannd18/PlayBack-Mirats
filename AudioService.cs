@@ -43,6 +43,7 @@ namespace LibVLCSharp.WinForms.Sample
                     
                 }
                 arguments = $"{arguments}{arguments_1}{arguments_2}amix=inputs={lengthList}[a]\" -map [a] \"{outputPath}\"";
+                Console.WriteLine(arguments);
                 var conversionResult = FFmpeg.Conversions.New().Start(arguments);
                 return conversionResult;
             }

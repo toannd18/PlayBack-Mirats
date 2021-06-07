@@ -65,6 +65,8 @@ namespace LibVLCSharp.WinForms.Sample
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txt_delay = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.videoView1)).BeginInit();
             this.panel3.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -110,9 +112,9 @@ namespace LibVLCSharp.WinForms.Sample
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.cklistbox);
-            this.groupBox2.Location = new System.Drawing.Point(0, 100);
+            this.groupBox2.Location = new System.Drawing.Point(0, 133);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(227, 296);
+            this.groupBox2.Size = new System.Drawing.Size(227, 263);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Danh sách ghi âm";
@@ -124,15 +126,16 @@ namespace LibVLCSharp.WinForms.Sample
             this.cklistbox.FormattingEnabled = true;
             this.cklistbox.Location = new System.Drawing.Point(3, 16);
             this.cklistbox.Name = "cklistbox";
-            this.cklistbox.Size = new System.Drawing.Size(221, 277);
+            this.cklistbox.Size = new System.Drawing.Size(221, 244);
             this.cklistbox.TabIndex = 1;
             this.cklistbox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cklistbox_ItemCheck);
-      
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.txt_delay);
+            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.cbRate);
             this.groupBox1.Controls.Add(this.lbl_End);
@@ -140,7 +143,7 @@ namespace LibVLCSharp.WinForms.Sample
             this.groupBox1.Controls.Add(this.lbl_Name);
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(227, 100);
+            this.groupBox1.Size = new System.Drawing.Size(227, 127);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Thông tin video";
@@ -149,7 +152,7 @@ namespace LibVLCSharp.WinForms.Sample
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 76);
+            this.label3.Location = new System.Drawing.Point(6, 73);
             this.label3.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.label3.Name = "label3";
             this.label3.Padding = new System.Windows.Forms.Padding(1);
@@ -167,7 +170,7 @@ namespace LibVLCSharp.WinForms.Sample
             "x2",
             "x3",
             "x4"});
-            this.cbRate.Location = new System.Drawing.Point(100, 73);
+            this.cbRate.Location = new System.Drawing.Point(100, 70);
             this.cbRate.Name = "cbRate";
             this.cbRate.Size = new System.Drawing.Size(121, 21);
             this.cbRate.TabIndex = 3;
@@ -447,7 +450,29 @@ namespace LibVLCSharp.WinForms.Sample
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(121, 20);
-            this.toolStripStatusLabel2.Text = "30/07/2020 Ver 1.0.0";
+            this.toolStripStatusLabel2.Text = "30/07/2020 Ver 2.0.0";
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(8, 102);
+            this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            this.label2.Name = "label2";
+            this.label2.Padding = new System.Windows.Forms.Padding(1);
+            this.label2.Size = new System.Drawing.Size(36, 15);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Delay";
+            // 
+            // txt_delay
+            // 
+            this.txt_delay.Location = new System.Drawing.Point(100, 99);
+            this.txt_delay.Name = "txt_delay";
+            this.txt_delay.Size = new System.Drawing.Size(121, 20);
+            this.txt_delay.TabIndex = 8;
+            this.txt_delay.Text = "0";
+            this.txt_delay.TextChanged += new System.EventHandler(this.txt_delay_TextChanged);
+            this.txt_delay.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_delay_KeyPress);
             // 
             // Form1
             // 
@@ -517,5 +542,7 @@ namespace LibVLCSharp.WinForms.Sample
         private CheckedListBox cklistbox;
         private Label label3;
         private ComboBox cbRate;
+        private TextBox txt_delay;
+        private Label label2;
     }
 }

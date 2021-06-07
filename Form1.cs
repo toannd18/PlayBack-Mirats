@@ -140,6 +140,7 @@ namespace LibVLCSharp.WinForms.Sample
             btn_OpAudio.InvokeIfRequired(l => l.Enabled = _mp.Media is null ? false : true);
         }
 
+        //function get start time of file
         private long GetStartTime(string fileName, DateTime timePlayer)
         {
             var fileLength = fileName.Length;
@@ -172,7 +173,7 @@ namespace LibVLCSharp.WinForms.Sample
                 Task.Delay(100).Wait();
             });
         }
-
+        //button play and stop file
         private async void btn_play_Click(object sender, EventArgs e)
         {
             if (_mp.Media is null) return;
@@ -210,6 +211,7 @@ namespace LibVLCSharp.WinForms.Sample
             //PlayMedia(_lsPlays);
 
             _mp.SetRate(rate);
+            txt_delay.Text = "0";
             Task.Delay(500).Wait();
             _mp.Play();
         }
@@ -237,6 +239,7 @@ namespace LibVLCSharp.WinForms.Sample
             // btn_frn.InvokeIfRequired(l => l.Enabled = true);
         }
 
+        //button open the file
         private void btn_open_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog
@@ -296,6 +299,8 @@ namespace LibVLCSharp.WinForms.Sample
                 btn_OpAudio.InvokeIfRequired(l => l.Enabled = true);
             }
         }
+
+        //button open the audio
 
         private void btn_OpAudio_Click(object sender, EventArgs e)
         {
@@ -357,6 +362,8 @@ namespace LibVLCSharp.WinForms.Sample
                 }
             }
         }
+
+        //button stop file is playing
 
         private void btn_Stop_Click(object sender, EventArgs e)
         {
@@ -465,6 +472,7 @@ namespace LibVLCSharp.WinForms.Sample
             }
         }
 
+        //Adujt rate of video
         private void cbRate_SelectedIndexChanged(object sender, EventArgs e)
         {
             rate = (float)cbRate.SelectedIndex + 1;
@@ -482,6 +490,17 @@ namespace LibVLCSharp.WinForms.Sample
                     _mp.Play();
                 });
             }
+        }
+
+        private void txt_delay_TextChanged(object sender, EventArgs e)
+        {
+            if(!string.IsNullOrWhiteSpace(txt_delay.Text))
+            _mp.SetAudioDelay(long.Parse(txt_delay.Text));
+        }
+
+        private void txt_delay_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
     }
 }
